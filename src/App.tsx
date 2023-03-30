@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useRef } from "react";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
@@ -9,60 +10,48 @@ const Wrapper = styled.div`
   align-items: center;
 `;
 
-const Box = styled(motion.div)`
-  width: 200px;
-  height: 200px;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  /* fr : 유연한 크기를 갖는 단위, 그리드 컨테이너 내의 공간 비율을 분수(fraction)로 나타냄 */
-  background-color: rgba(255, 255, 255, 0.2);
+const BiggerBox = styled.div`
+  width: 300px;
+  height: 300px;
+  background-color: rgba(255, 255, 255, 0.4);
   border-radius: 40px;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
-const Circle = styled(motion.div)`
-  background-color: white;
-  height: 70px;
-  width: 70px;
-  place-self: center;
-  border-radius: 35px;
+const Box = styled(motion.div)`
+  width: 100px;
+  height: 100px;
+  background-color: rgba(255, 255, 255, 1);
+  border-radius: 30px;
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.06);
 `;
 
 const boxVariants = {
-  start: { opacity: 0, scale: 0.5 },
-  end: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      type: "spring",
-      duration: 0.5,
-      bounce: 0.5,
-      delayChildren: 0.2,
-      staggerChildren: 0.1, // 자식들에게 순서대로 점점 더 큰 delay
-    },
-  },
-};
-
-const circleVariants = {
-  start: {
-    opacity: 0,
-  },
-  end: {
-    opacity: 1,
-  },
+  hover: { rotateZ: 90 },
+  click: { borderRadius: "100px" },
 };
 
 function App() {
+  const biggerBoxRef = useRef<HTMLDivElement>(null);
   return (
     <Wrapper>
-      <Box variants={boxVariants} initial="start" animate="end">
-        {/* 부모의 initial, animate 값 상속 */}
-        <Circle variants={circleVariants} />
-        <Circle variants={circleVariants} />
-        <Circle variants={circleVariants} />
-        <Circle variants={circleVariants} />
-      </Box>
+      <BiggerBox ref={biggerBoxRef}>
+        <Box
+          drag
+          dragSnapToOrigin // 원래 위치로 돌아가게 됨
+          dragElastic={0.5} // 탄성, 당기는 값, 기본값은 0.5, 0부터 1까지의 값
+          // dragConstraints={{ top: -200, bottom: 200, left: -200, right: 200 }}
+          // dragConstraints : 제약이 있는 Box를 만들 수 있음 (드래깅이 허용될 수 있는 영역)
+          dragConstraints={biggerBoxRef}
+          // biggerBox의 가장자리까지
+          variants={boxVariants}
+          whileHover="hover"
+          whileTap="click"
+          // color 변경 시 rgb 값으로 넣어야 애니메이션 적용, string은 적용X
+        />
+      </BiggerBox>
     </Wrapper>
   );
 }
